@@ -1,0 +1,29 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Guest {
+    id: Integer
+    name: String
+    availableSeats: Integer
+}
+
+class Confirmation {
+    id: Integer
+    guestId: Integer
+    seatConfirmed: Integer
+    willAttend: AttendEnum
+}
+
+class Comment {
+    id: Integer
+    description: String
+    image: BitArray
+}
+
+enum AttendEnum {
+YES
+NO
+MAYBE
+}
+
+@enduml
