@@ -1,25 +1,25 @@
 package com.kn.wedding.manager;
 
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.time.Duration;
-
-@Component
+@Configuration
 @Testcontainers
 public class WeddingManagerDatabaseInitializer {
+    private static final String DATABASE_NAME = "wedding_db";
 
-    @Bean
-    @ServiceConnection
-    public PostgreSQLContainer<?> connection() {
-        return new PostgreSQLContainer<>(DockerImageName.parse("postgres:alpine")).withInitScript("init.sql")
-                        .withReuse(true)
-                        .withExposedPorts(5432)
-                        .withStartupCheckStrategy(new MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(5)));
+    @Container
+    public static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:7.0.0"));
+
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+        registry.add("spring.data.mongodb.database", () -> DATABASE_NAME);
     }
 }
